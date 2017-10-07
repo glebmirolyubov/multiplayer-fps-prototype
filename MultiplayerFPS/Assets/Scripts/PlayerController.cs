@@ -52,6 +52,10 @@ public class PlayerController : MonoBehaviour {
     private void Update()
     {
 
+        if (PauseMenu.isOn){
+            return;
+        }
+
         //Setting target position for spring
         //Makes physics act right when it comes to apllying gravity while flying over object
         RaycastHit _hit;
