@@ -39,6 +39,7 @@ GameObject:
   - component: {fileID: 33969528758914778}
   - component: {fileID: 23598471717343512}
   - component: {fileID: 114408630538609630}
+  - component: {fileID: 95002321528857632}
   m_Layer: 0
   m_Name: Sci-Fi Automatic
   m_TagString: Untagged
@@ -97,8 +98,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1295295234924292}
-  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 1.157, y: 0.747, z: -1.03}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4565186049354966}
@@ -174,6 +175,23 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1295295234924292}
   m_Mesh: {fileID: 4300000, guid: 122c74733c46b46c38bba50952838b0c, type: 3}
+--- !u!95 &95002321528857632
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1295295234924292}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 432f3be0bc3dc4ca98d9b6cbab2dbb79, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!114 &114408630538609630
 MonoBehaviour:
   m_ObjectHideFlags: 1
