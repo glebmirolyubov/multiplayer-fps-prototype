@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
@@ -7,8 +8,13 @@ public class GameManager : MonoBehaviour
 
     public MatchSettings matchSettings;
 
+    float deltaTime = 0.0f;
+
     [SerializeField]
     private GameObject sceneCamera;
+
+    public delegate void OnPlayerKilledCallback(string player, string source);
+    public OnPlayerKilledCallback onPlayerKilledCallback;
 
     private void Awake()
     {
@@ -17,6 +23,11 @@ public class GameManager : MonoBehaviour
         } else {
            instance = this; 
         }
+    }
+
+    private void Update()
+    {
+        deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
     }
 
     public void SetSceneCameraActive (bool isActive) {
@@ -50,20 +61,27 @@ public class GameManager : MonoBehaviour
         return players[_playerID];
     }
 
-    /*
+    public static Player[] GetAllPlayers () {
+        return players.Values.ToArray();
+    }
+
+
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(200, 200, 200, 500));
-        GUILayout.BeginVertical();
+        int w = Screen.width, h = Screen.height;
 
-        foreach (string _playerID in players.Keys) {
-            GUILayout.Label(_playerID + " - "+ players[_playerID].transform.name);
-        }
+		GUIStyle style = new GUIStyle();
 
-        GUILayout.EndVertical();
-        GUILayout.EndArea();
+		Rect rect = new Rect(0, 0, w, h * 2 / 100);
+		style.alignment = TextAnchor.UpperLeft;
+		style.fontSize = h * 2 / 100;
+		style.normal.textColor = new Color(1f, 1f, 1f, 1.0f);
+		float msec = Time.deltaTime * 1000.0f;
+		float fps = 1.0f / Time.deltaTime;
+		string text = string.Format("{0:0.0} ms ({1:0.} fps)", msec, fps);
+		GUI.Label(rect, text, style);
     }
-    */
+
 
     #endregion
 }

@@ -54,7 +54,7 @@ public static UserAccountManager instance;
 
 	IEnumerator SetData(string data)
 	{
-        IEnumerator e = DCF.SetUserData(playerUsername, playerPassword, "[KILLS]0/[DEATHS]0"); // << Send request to set the player's data string. Provides the username, password and new data string
+        IEnumerator e = DCF.SetUserData(playerUsername, playerPassword, data); // << Send request to set the player's data string. Provides the username, password and new data string
 		while (e.MoveNext())
 		{
 			yield return e.Current;

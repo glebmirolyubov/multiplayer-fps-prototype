@@ -22,6 +22,9 @@ public class Player : NetworkBehaviour {
 	[SyncVar]
 	private int currentHealth;
 
+    [SyncVar]
+    public string username = "Загрузка...";
+
     public int kills;
     public int deaths;
 
@@ -98,9 +101,9 @@ public class Player : NetworkBehaviour {
         isDead = true;
 
         Player sourcePlayer = GameManager.GetPlayer(_sourceID);
-
         if (_sourceID != null) {
             sourcePlayer.kills++;
+			GameManager.instance.onPlayerKilledCallback.Invoke(username, sourcePlayer.username);
         }
 
         deaths++;
