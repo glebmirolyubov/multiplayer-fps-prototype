@@ -227,4 +227,8 @@ public class LoginMenu : MonoBehaviour
 		//SceneManagement.LoadScene(0);
 		// loggedInParent.gameObject.SetActive(false);
 	}
+
+    public void Quit_QuitButtonPressed () {
+        Application.Quit();
+    }
 }
