@@ -73,8 +73,8 @@ GameObject:
   - component: {fileID: 223285116406966906}
   - component: {fileID: 114468651918417704}
   - component: {fileID: 114704924101847178}
-  - component: {fileID: 114464563676190388}
   - component: {fileID: 114590393900212570}
+  - component: {fileID: 114464563676190388}
   m_Layer: 8
   m_Name: NameplateCanvas
   m_TagString: Untagged
@@ -838,8 +838,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  lookSensetivity: 3
-  thrusterForce: 1300
+  lookSensitivity: 3
+  thrusterForce: 2000
   thrusterFuelBurnSpeed: 1
   thrusterFuelRegenSpeed: 0.3
   environmentMask:
@@ -884,7 +884,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 20352440906471800}
-  cameraRoatationLimit: 85
+  cameraRotationLimit: 85
 --- !u!114 &114142989569827940
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1172,15 +1172,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  disableOnDeath:
-  - {fileID: 114029933787485634}
-  - {fileID: 114393011112887584}
   username: "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430..."
   kills: 0
   deaths: 0
-  disableGameObjectOnDeath:
-  - {fileID: 1751963690953240}
+  disableOnDeath:
+  - {fileID: 114029933787485634}
+  - {fileID: 114393011112887584}
+  disableGameObjectsOnDeath:
   - {fileID: 1886540795649772}
+  - {fileID: 1751963690953240}
   deathEffect: {fileID: 1853116653596700, guid: ef31d31f7daf040ca8525bc935d4e5db,
     type: 2}
   spawnEffect: {fileID: 1196686649088448, guid: 016179a3b6ae74cbf97569d66bd36088,
@@ -1233,7 +1233,7 @@ ConfigurableJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 0
-  m_ConnectedAnchor: {x: 0, y: 1, z: 0}
+  m_ConnectedAnchor: {x: 0, y: 1.5, z: 0}
   serializedVersion: 2
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 2

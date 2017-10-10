@@ -1,104 +1,121 @@
-﻿using UnityEngine;
+﻿//-------------------------------------
+// Responsible for setting up the player.
+// This includes adding/removing him correctly on the network.
+//-------------------------------------
+
+using UnityEngine;
 using UnityEngine.Networking;
 
 [RequireComponent(typeof(Player))]
 [RequireComponent(typeof(PlayerController))]
-public class PlayerSetup : NetworkBehaviour {
+public class PlayerSetup : NetworkBehaviour
+{
 
-    [SerializeField]
-    Behaviour[] componentsToDisable;
+	[SerializeField]
+	Behaviour[] componentsToDisable;
 
-    [SerializeField]
-    private string remoteLayerName = "RemotePlayer";
+	[SerializeField]
+	string remoteLayerName = "RemotePlayer";
 
-    [SerializeField]
-    string dontDrawLayerName = "DontDraw";
-    [SerializeField]
-    GameObject playerGraphics;
+	[SerializeField]
+	string dontDrawLayerName = "DontDraw";
+	[SerializeField]
+	GameObject playerGraphics;
 
-    [SerializeField]
-    GameObject playerUIPrefab;
+	[SerializeField]
+	GameObject playerUIPrefab;
+	[HideInInspector]
+	public GameObject playerUIInstance;
 
-    [HideInInspector]
-    public GameObject playerUIInstance;
+	void Start()
+	{
+		// Disable components that should only be
+		// active on the player that we control
+		if (!isLocalPlayer)
+		{
+			DisableComponents();
+			AssignRemoteLayer();
+		}
+		else
+		{
+			// Disable player graphics for local player
+			SetLayerRecursively(playerGraphics, LayerMask.NameToLayer(dontDrawLayerName));
 
-    private void Start()
-    {
-        if (!isLocalPlayer) {
-            DisableComponents();
-            AssignRemoteLayer();
-        } else {
+			// Create PlayerUI
+			playerUIInstance = Instantiate(playerUIPrefab);
+			playerUIInstance.name = playerUIPrefab.name;
 
-            //Disable player graphics for local player
-            SetLayerRecursively(playerGraphics, LayerMask.NameToLayer(dontDrawLayerName));
+			// Configure PlayerUI
+			PlayerUI ui = playerUIInstance.GetComponent<PlayerUI>();
+			if (ui == null)
+				Debug.LogError("No PlayerUI component on PlayerUI prefab.");
+			ui.SetPlayer(GetComponent<Player>());
 
-            //Create player UI
-            playerUIInstance = Instantiate(playerUIPrefab);
-            playerUIInstance.name = playerUIPrefab.name;
+			GetComponent<Player>().SetupPlayer();
 
-            //Configure player UI
-            PlayerUI ui = playerUIInstance.GetComponent<PlayerUI>();
-            if (ui == null)
-                Debug.LogError("No PlayerUI component on PlayerUI prefab.");
-            ui.SetPlayer(GetComponent<Player>());
+			string _username = "Loading...";
+			if (UserAccountManager.isLoggedIn)
+				_username = UserAccountManager.playerUsername;
+			else
+				_username = transform.name;
 
-            GetComponent<Player>().SetupPlayer();
+			CmdSetUsername(transform.name, _username);
+		}
+	}
 
-            string _username = "Загрузка...";
-            if (UserAccountManager.isLoggedIn)
-                _username = UserAccountManager.playerUsername;
-            else
-                _username = transform.name;
+	[Command]
+	void CmdSetUsername(string playerID, string username)
+	{
+		Player player = GameManager.GetPlayer(playerID);
+		if (player != null)
+		{
+			Debug.Log(username + " has joined!");
+			player.username = username;
+		}
+	}
 
-            CmdSetUsername(transform.name, _username);
-        }
-    }
+	void SetLayerRecursively(GameObject obj, int newLayer)
+	{
+		obj.layer = newLayer;
 
-    [Command]
-    void CmdSetUsername (string playerID, string username) {
-        Player player = GameManager.GetPlayer(playerID);
-        if (player != null) {
-            Debug.Log(username + " has joined");
-            player.username = username;
-        }
-    }
+		foreach (Transform child in obj.transform)
+		{
+			SetLayerRecursively(child.gameObject, newLayer);
+		}
+	}
 
-    void SetLayerRecursively (GameObject obj, int newLayer) {
-        obj.layer = newLayer;
+	public override void OnStartClient()
+	{
+		base.OnStartClient();
 
-        foreach(Transform child in obj.transform) {
-            SetLayerRecursively(child.gameObject, newLayer);
-        }
-    }
+		string _netID = GetComponent<NetworkIdentity>().netId.ToString();
+		Player _player = GetComponent<Player>();
 
-    public override void OnStartClient () {
-        base.OnStartClient();
+		GameManager.RegisterPlayer(_netID, _player);
+	}
 
-        string _netID = GetComponent<NetworkIdentity>().netId.ToString();
-        Player _player = GetComponent<Player>();
+	void AssignRemoteLayer()
+	{
+		gameObject.layer = LayerMask.NameToLayer(remoteLayerName);
+	}
 
-        GameManager.RegisterPlayer(_netID, _player);
-    }
-
-    void DisableComponents () {
+	void DisableComponents()
+	{
 		for (int i = 0; i < componentsToDisable.Length; i++)
 		{
 			componentsToDisable[i].enabled = false;
 		}
-    }
+	}
 
-    void AssignRemoteLayer() {
-        gameObject.layer = LayerMask.NameToLayer(remoteLayerName);
-    }
+	// When we are destroyed
+	void OnDisable()
+	{
+		Destroy(playerUIInstance);
 
-    private void OnDisable()
-    {
-        Destroy(playerUIInstance);
+		if (isLocalPlayer)
+			GameManager.instance.SetSceneCameraActive(true);
 
-        if (isLocalPlayer) 
-            GameManager.instance.SetSceneCameraActive(true);
-
-        GameManager.UnregisterPlayer(transform.name);
-    }
+		GameManager.UnRegisterPlayer(transform.name);
+	}
 
 }

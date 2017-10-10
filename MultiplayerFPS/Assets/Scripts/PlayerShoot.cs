@@ -1,129 +1,147 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 
-[RequireComponent (typeof(WeaponManager))]
-public class PlayerShoot : NetworkBehaviour {
+[RequireComponent(typeof(WeaponManager))]
+public class PlayerShoot : NetworkBehaviour
+{
 
-    private const string PLAYER_TAG = "Player";
+	private const string PLAYER_TAG = "Player";
 
-    [SerializeField]
-    private Camera cam;
+	[SerializeField]
+	private Camera cam;
 
-    [SerializeField]
-    private LayerMask mask;
+	[SerializeField]
+	private LayerMask mask;
 
-    private PlayerWeapon currentWeapon;
-    private WeaponManager weaponManager;
+	private PlayerWeapon currentWeapon;
+	private WeaponManager weaponManager;
 
-	private void Start()
-    {
-        if (cam == null){
-            Debug.Log("PlayerShoot: no camera referenced");
-            this.enabled = false;
-        }
+	void Start()
+	{
+		if (cam == null)
+		{
+			Debug.LogError("PlayerShoot: No camera referenced!");
+			this.enabled = false;
+		}
 
-        weaponManager = GetComponent<WeaponManager>();
-    }
+		weaponManager = GetComponent<WeaponManager>();
+	}
 
-    private void Update()
-    {
-        currentWeapon = weaponManager.GetCurrentWeapon();
+	void Update()
+	{
+		currentWeapon = weaponManager.GetCurrentWeapon();
 
-        if (PauseMenu.isOn) {
-            return;
-        }
+		if (PauseMenu.IsOn)
+			return;
 
-        if (currentWeapon.bullets < currentWeapon.maxBullets) {
+		if (currentWeapon.bullets < currentWeapon.maxBullets)
+		{
 			if (Input.GetButtonDown("Reload"))
 			{
 				weaponManager.Reload();
 				return;
 			}
-        }
+		}
 
-        if (currentWeapon.fireRate <= 0f) {
+		if (currentWeapon.fireRate <= 0f)
+		{
 			if (Input.GetButtonDown("Fire1"))
 			{
 				Shoot();
 			}
-        } else {
-            if (Input.GetButtonDown("Fire1")) {
-                InvokeRepeating("Shoot", 0f, 1f/currentWeapon.fireRate);
-            } else if (Input.GetButtonUp("Fire1")) {
-                CancelInvoke("Shoot");
-            }
-        } 
-    }
+		}
+		else
+		{
+			if (Input.GetButtonDown("Fire1"))
+			{
+				InvokeRepeating("Shoot", 0f, 1f / currentWeapon.fireRate);
+			}
+			else if (Input.GetButtonUp("Fire1"))
+			{
+				CancelInvoke("Shoot");
+			}
+		}
+	}
 
-    //Called on the server when the player shoots
-    [Command]
-    void CmdOnShoot() {
-        RpcDoShootEffect();
-    }
-
-    //Called on all clients when need to do shoot effect
-    [ClientRpc]
-    void RpcDoShootEffect() {
-        weaponManager.GetCurrentGraphics().muzzleFlash.Play();
-    }
-
-    //Called on the server when we hit smth
-    //Takes in the hit point and normal of the surface
+	//Is called on the server when a player shoots
 	[Command]
-    void CmdOnHit(Vector3 _pos, Vector3 _normal)
+	void CmdOnShoot()
 	{
-        RpcDoHitEffect(_pos, _normal);
+		RpcDoShootEffect();
 	}
 
-    //Is called on all clients
-    //Spawn in cool effects
+	//Is called on all clients when we need to to
+	// a shoot effect
 	[ClientRpc]
-    void RpcDoHitEffect(Vector3 _pos, Vector3 _normal)
+	void RpcDoShootEffect()
 	{
-        GameObject _hitEffect = (GameObject)Instantiate(weaponManager.GetCurrentGraphics().hitEffectPrefab, _pos, Quaternion.LookRotation(_normal));
-        Destroy(_hitEffect, 2f);
+		weaponManager.GetCurrentGraphics().muzzleFlash.Play();
 	}
 
-    [Client]
-    void Shoot()
-    {
-        if (!isLocalPlayer || weaponManager.isReloading){
-            return;
-        }
+	//Is called on the server when we hit something
+	//Takes in the hit point and the normal of the surface
+	[Command]
+	void CmdOnHit(Vector3 _pos, Vector3 _normal)
+	{
+		RpcDoHitEffect(_pos, _normal);
+	}
 
-        if (currentWeapon.bullets <= 0) {
-            weaponManager.Reload();
-            return;
-        }
+	//Is called on all clients
+	//Here we can spawn in cool effects
+	[ClientRpc]
+	void RpcDoHitEffect(Vector3 _pos, Vector3 _normal)
+	{
+		GameObject _hitEffect = (GameObject)Instantiate(weaponManager.GetCurrentGraphics().hitEffectPrefab, _pos, Quaternion.LookRotation(_normal));
+		Destroy(_hitEffect, 2f);
+	}
 
-        currentWeapon.bullets--;
+	[Client]
+	void Shoot()
+	{
+		if (!isLocalPlayer || weaponManager.isReloading)
+		{
+			return;
+		}
 
-        Debug.Log("Remaining bullets " + currentWeapon.bullets);
+		if (currentWeapon.bullets <= 0)
+		{
+			weaponManager.Reload();
+			return;
+		}
 
-        //We are shooting, call the OnShoot method on the server
-        CmdOnShoot();
+		currentWeapon.bullets--;
 
-        RaycastHit _hit;
-        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out _hit, currentWeapon.range, mask))
-        {
-            if (_hit.collider.tag == PLAYER_TAG) {
-                CmdPlayerShot(_hit.collider.name, currentWeapon.damage, transform.name);
-            }
+		Debug.Log("Remaining bullets: " + currentWeapon.bullets);
 
-            //We hit something, call the OnHit method on the server
-            CmdOnHit(_hit.point, _hit.normal);
-        }
+		//We are shooting, call the OnShoot method on the server
+		CmdOnShoot();
 
-        if (currentWeapon.bullets <= 0) {
-            weaponManager.Reload();
-        }
-    }
+		RaycastHit _hit;
+		if (Physics.Raycast(cam.transform.position, cam.transform.forward, out _hit, currentWeapon.range, mask))
+		{
+			if (_hit.collider.tag == PLAYER_TAG)
+			{
+				CmdPlayerShot(_hit.collider.name, currentWeapon.damage, transform.name);
+			}
 
-    [Command]
-    void CmdPlayerShot (string _playerID, int _damage, string _sourceID) {
-        Debug.Log(_playerID + " has been shot");
+			// We hit something, call the OnHit method on the server
+			CmdOnHit(_hit.point, _hit.normal);
+		}
 
-        Player _player = GameManager.GetPlayer(_playerID);
-        _player.RpcTakeDamage(_damage, _sourceID);
-    }
+		if (currentWeapon.bullets <= 0)
+		{
+			weaponManager.Reload();
+		}
+
+	}
+
+	[Command]
+	void CmdPlayerShot(string _playerID, int _damage, string _sourceID)
+	{
+		Debug.Log(_playerID + " has been shot.");
+
+		Player _player = GameManager.GetPlayer(_playerID);
+		_player.RpcTakeDamage(_damage, _sourceID);
+	}
+
 }

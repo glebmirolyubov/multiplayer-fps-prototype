@@ -1,34 +1,36 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
-public class Scoreboard : MonoBehaviour {
-
-    [SerializeField]
-    GameObject playerScoreboardItem;
+public class Scoreboard : MonoBehaviour
+{
 
 	[SerializeField]
-    Transform playerScoreboardList;
+	GameObject playerScoreboardItem;
 
-    private void OnEnable()
-    {
-        // Get an array of players
-        Player[] players = GameManager.GetAllPlayers();
+	[SerializeField]
+	Transform playerScoreboardList;
 
-        foreach (Player player in players) {
-            GameObject itemGO = (GameObject)Instantiate(playerScoreboardItem, playerScoreboardList);
-            PlayerScoreboardItem item = itemGO.GetComponent<PlayerScoreboardItem>();
-            if (item != null) {
-                item.Setup(player.username, player.kills, player.deaths);
-            }
-        }
-    }
+	void OnEnable()
+	{
+		Player[] players = GameManager.GetAllPlayers();
 
-    private void OnDisable()
-    {
-        // Clean up list of items
-        foreach (Transform child in playerScoreboardList) {
-            Destroy(child.gameObject);
-        }
-    }
+		foreach (Player player in players)
+		{
+			GameObject itemGO = (GameObject)Instantiate(playerScoreboardItem, playerScoreboardList);
+			PlayerScoreboardItem item = itemGO.GetComponent<PlayerScoreboardItem>();
+			if (item != null)
+			{
+				item.Setup(player.username, player.kills, player.deaths);
+			}
+		}
+	}
+
+	void OnDisable()
+	{
+		foreach (Transform child in playerScoreboardList)
+		{
+			Destroy(child.gameObject);
+		}
+	}
 
 }

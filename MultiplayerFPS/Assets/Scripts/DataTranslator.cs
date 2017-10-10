@@ -31,6 +31,5 @@ public class DataTranslator : MonoBehaviour {
 		}
 
         return "";
-        Debug.LogError("Symbol not found in " + data);
     }
 }

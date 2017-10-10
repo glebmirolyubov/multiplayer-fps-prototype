@@ -4,84 +4,79 @@ using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
 
-    public MatchSettings matchSettings;
+	public static GameManager instance;
 
-    float deltaTime = 0.0f;
+	public MatchSettings matchSettings;
 
-    [SerializeField]
-    private GameObject sceneCamera;
+	[SerializeField]
+	private GameObject sceneCamera;
 
-    public delegate void OnPlayerKilledCallback(string player, string source);
-    public OnPlayerKilledCallback onPlayerKilledCallback;
+	public delegate void OnPlayerKilledCallback(string player, string source);
+	public OnPlayerKilledCallback onPlayerKilledCallback;
 
-    private void Awake()
-    {
-        if (instance != null) {
-            Debug.LogError("More than one GameManager in scene");
-        } else {
-           instance = this; 
-        }
-    }
+	void Awake()
+	{
+		if (instance != null)
+		{
+			Debug.LogError("More than one GameManager in scene.");
+		}
+		else
+		{
+			instance = this;
+		}
+	}
 
-    private void Update()
-    {
-        deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
-    }
+	public void SetSceneCameraActive(bool isActive)
+	{
+		if (sceneCamera == null)
+			return;
 
-    public void SetSceneCameraActive (bool isActive) {
-        if (sceneCamera == null) {
-            return;
-        }
+		sceneCamera.SetActive(isActive);
+	}
 
-        sceneCamera.SetActive(isActive);
-    }
+	#region Player tracking
 
-    #region Player tracking
+	private const string PLAYER_ID_PREFIX = "Player ";
 
-    private const string PLAYER_ID_PREFIX = "Player";
+	private static Dictionary<string, Player> players = new Dictionary<string, Player>();
 
-    private static Dictionary<string, Player> players = new Dictionary<string, Player>();
+	public static void RegisterPlayer(string _netID, Player _player)
+	{
+		string _playerID = PLAYER_ID_PREFIX + _netID;
+		players.Add(_playerID, _player);
+		_player.transform.name = _playerID;
+	}
 
-    public static void RegisterPlayer(string _netID, Player _player)
-    {
-        string _playerID = PLAYER_ID_PREFIX + _netID;
-        players.Add(_playerID, _player);
-        _player.transform.name = _playerID;
-    }
+	public static void UnRegisterPlayer(string _playerID)
+	{
+		players.Remove(_playerID);
+	}
 
-    public static void UnregisterPlayer(string _playerID)
-    {
-        players.Remove(_playerID);
-    }
+	public static Player GetPlayer(string _playerID)
+	{
+		return players[_playerID];
+	}
 
-    public static Player GetPlayer(string _playerID)
-    {
-        return players[_playerID];
-    }
+	public static Player[] GetAllPlayers()
+	{
+		return players.Values.ToArray();
+	}
 
-    public static Player[] GetAllPlayers () {
-        return players.Values.ToArray();
-    }
+	//void OnGUI ()
+	//{
+	//    GUILayout.BeginArea(new Rect(200, 200, 200, 500));
+	//    GUILayout.BeginVertical();
 
+	//    foreach (string _playerID in players.Keys)
+	//    {
+	//        GUILayout.Label(_playerID + "  -  " + players[_playerID].transform.name);
+	//    }
 
-    private void OnGUI()
-    {
-        int w = Screen.width, h = Screen.height;
+	//    GUILayout.EndVertical();
+	//    GUILayout.EndArea();
+	//}
 
-		GUIStyle style = new GUIStyle();
+	#endregion
 
-		Rect rect = new Rect(0, 0, w, h * 2 / 100);
-		style.alignment = TextAnchor.UpperLeft;
-		style.fontSize = h * 2 / 100;
-		style.normal.textColor = new Color(1f, 1f, 1f, 1.0f);
-		float msec = Time.deltaTime * 1000.0f;
-		float fps = 1.0f / Time.deltaTime;
-		string text = string.Format("{0:0.0} ms ({1:0.} fps)", msec, fps);
-		GUI.Label(rect, text, style);
-    }
-
-
-    #endregion
 }
