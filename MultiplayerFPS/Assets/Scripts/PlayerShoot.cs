@@ -61,6 +61,7 @@ public class PlayerShoot : NetworkBehaviour
 				CancelInvoke("Shoot");
 			}
 		}
+
 	}
 
 	//Is called on the server when a player shoots
