@@ -166,14 +166,6 @@ private void Die(string _sourceID)
 		transform.position = _spawnPoint.position;
 		transform.rotation = _spawnPoint.rotation;
 
-        Debug.Log(_spawnPoint.name);
-
-		if (_spawnPoint.name == "DesertSpawnPoint1" || _spawnPoint.name == "DesertSpawnPoint2" || _spawnPoint.name == "DesertSpawnPoint3")
-            TimeSwap.isDesert = true;
-
-		if (_spawnPoint.name == "WinterSpawnPoint1" || _spawnPoint.name == "WinterSpawnPoint2" || _spawnPoint.name == "WinterSpawnPoint3")
-			TimeSwap.isDesert = false;
-
 		yield return new WaitForSeconds(0.1f);
 
 		SetupPlayer();

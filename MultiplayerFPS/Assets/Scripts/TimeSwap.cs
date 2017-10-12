@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TimeSwap : MonoBehaviour {
     
-    public static bool isDesert;
+    private bool isDesert;
 	
 	void Update () {
         if (PauseMenu.IsOn) {
@@ -22,5 +22,14 @@ public class TimeSwap : MonoBehaviour {
             isDesert = true;
         }
     }
+
+	void OnTriggerEnter(Collider timeTrigger)
+	{
+        if (timeTrigger.name == "DesertTrigger") {
+            isDesert = true;
+        } else if (timeTrigger.name == "WinterTrigger") {
+            isDesert = false;
+        }
+	}
 
 }
